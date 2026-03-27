@@ -1,0 +1,61 @@
+board,board_group,board_description,trial,algorithm,solved,status,search_time_s,peak_memory_kb,expanded_nodes,generated_nodes,frontier_size,search_length,solution_length,best_trace_length,replay_length,node_limit
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,1,BFS,1,Solved,0.000136,16.812,1,2,1,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,1,DFS (IDS),1,Solved,9.8e-05,4.875,1,2,0,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,1,UCS,1,Solved,0.000473,12.664,2,10,8,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,1,A*,1,Solved,0.00035,8.133,2,10,8,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,2,BFS,1,Solved,9.2e-05,2.469,1,2,1,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,2,DFS (IDS),1,Solved,9.2e-05,2.789,1,2,0,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,2,UCS,1,Solved,0.000311,5.625,2,10,8,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,2,A*,1,Solved,0.000329,5.688,2,10,8,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,3,BFS,1,Solved,9.8e-05,2.469,1,2,1,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,3,DFS (IDS),1,Solved,0.000117,2.375,1,2,0,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,3,UCS,1,Solved,0.000272,5.625,2,10,8,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,3,A*,1,Solved,0.00029,5.688,2,10,8,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,1,BFS,1,Solved,0.000136,2.469,1,2,1,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,1,DFS (IDS),1,Solved,8.9e-05,2.789,1,2,0,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,1,UCS,1,Solved,0.000314,5.625,2,10,8,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,1,A*,1,Solved,0.000291,5.688,2,10,8,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,2,BFS,1,Solved,8.4e-05,2.469,1,2,1,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,2,DFS (IDS),1,Solved,8.7e-05,2.375,1,2,0,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,2,UCS,1,Solved,0.000292,5.625,2,10,8,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,2,A*,1,Solved,0.000372,5.73,2,10,8,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,3,BFS,1,Solved,9.1e-05,2.469,1,2,1,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,3,DFS (IDS),1,Solved,8.5e-05,2.375,1,2,0,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,3,UCS,1,Solved,0.000303,5.625,2,10,8,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,3,A*,1,Solved,0.000318,5.73,2,10,8,1,1,1,1,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,1,BFS,1,Solved,0.129998,1190.998,194,1155,961,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,1,DFS (IDS),1,Solved,0.29573,13.183,371,7767,0,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,1,UCS,1,Solved,0.004088,42.742,9,99,90,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,1,A*,1,Solved,0.003835,44.789,9,99,90,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,2,BFS,1,Solved,0.115491,588.949,194,1155,961,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,2,DFS (IDS),1,Solved,0.327933,11.229,371,7767,0,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,2,UCS,1,Solved,0.004345,42.742,9,99,90,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,2,A*,1,Solved,0.003435,42.844,9,99,90,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,3,BFS,1,Solved,0.127405,588.949,194,1155,961,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,3,DFS (IDS),1,Solved,0.301666,10.066,371,7767,0,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,3,UCS,1,Solved,0.00429,42.742,9,99,90,4,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,3,A*,1,Solved,0.003271,42.844,9,99,90,4,4,4,4,5000
+medium_demo,core,Built-in sample board medium_demo.,1,BFS,0,Node limit reached,5.207949,43107.328,5000,41858,36858,5,0,5,5,5000
+medium_demo,core,Built-in sample board medium_demo.,1,DFS (IDS),0,Node limit reached,7.210984,25.625,5000,140849,0,4,0,4,4,5000
+medium_demo,core,Built-in sample board medium_demo.,1,UCS,1,Solved,0.285322,4626.531,256,4928,4672,12,12,12,12,5000
+medium_demo,core,Built-in sample board medium_demo.,1,A*,1,Solved,0.314266,4688.191,256,4928,4672,12,12,12,12,5000
+medium_demo,core,Built-in sample board medium_demo.,2,BFS,0,Node limit reached,5.16441,43054.508,5000,41858,36858,5,0,5,5,5000
+medium_demo,core,Built-in sample board medium_demo.,2,DFS (IDS),0,Node limit reached,6.832794,25.625,5000,140849,0,4,0,4,4,5000
+medium_demo,core,Built-in sample board medium_demo.,2,UCS,1,Solved,0.262345,4748.633,256,4928,4672,12,12,12,12,5000
+medium_demo,core,Built-in sample board medium_demo.,2,A*,1,Solved,0.274063,4687.719,256,4928,4672,12,12,12,12,5000
+medium_demo,core,Built-in sample board medium_demo.,3,BFS,0,Node limit reached,5.43909,43092.852,5000,41858,36858,5,0,5,5,5000
+medium_demo,core,Built-in sample board medium_demo.,3,DFS (IDS),0,Node limit reached,6.843405,25.625,5000,140849,0,4,0,4,4,5000
+medium_demo,core,Built-in sample board medium_demo.,3,UCS,1,Solved,0.26532,4541.656,256,4928,4672,12,12,12,12,5000
+medium_demo,core,Built-in sample board medium_demo.,3,A*,1,Solved,0.254331,4687.227,256,4928,4672,12,12,12,12,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,1,BFS,0,Node limit reached,2.063527,12494.133,5000,9152,4152,8,0,8,8,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,1,DFS (IDS),0,Node limit reached,3.145313,13.664,5000,30534,0,5,0,5,5,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,1,UCS,0,Node limit reached,3.425165,25714.219,5000,17879,12628,14,0,14,12,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,1,A*,0,Node limit reached,2.882311,19465.168,5000,13374,8027,14,0,14,14,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,2,BFS,0,Node limit reached,2.088052,12224.195,5000,9152,4152,8,0,8,8,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,2,DFS (IDS),0,Node limit reached,3.040895,13.664,5000,30534,0,5,0,5,5,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,2,UCS,0,Node limit reached,3.703835,25728.516,5000,17879,12628,14,0,14,12,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,2,A*,0,Node limit reached,2.909708,19653.73,5000,13374,8027,14,0,14,14,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,3,BFS,0,Node limit reached,2.056711,11973.898,5000,9152,4152,8,0,8,8,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,3,DFS (IDS),0,Node limit reached,2.943388,13.664,5000,30534,0,5,0,5,5,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,3,UCS,0,Node limit reached,3.313674,25999.664,5000,17879,12628,14,0,14,12,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,3,A*,0,Node limit reached,2.520649,19459.324,5000,13374,8027,14,0,14,14,5000

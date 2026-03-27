@@ -1,0 +1,21 @@
+board,board_group,board_description,algorithm,trials,solved_runs,solve_rate,status_mode,median_search_time_s,median_peak_memory_kb,median_expanded_nodes,median_generated_nodes,median_frontier_size,median_search_length,median_solution_length,median_best_trace_length,node_limit
+easy_demo,core,Built-in sample board easy_demo.,A*,3,3,1.0,Solved,0.000318,5.73,2,10,8,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,BFS,3,3,1.0,Solved,9.1e-05,2.469,1,2,1,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,DFS (IDS),3,3,1.0,Solved,8.7e-05,2.375,1,2,0,1,1,1,5000
+easy_demo,core,Built-in sample board easy_demo.,UCS,3,3,1.0,Solved,0.000303,5.625,2,10,8,1,1,1,5000
+medium_demo,core,Built-in sample board medium_demo.,A*,3,3,1.0,Solved,0.274063,4687.719,256,4928,4672,12,12,12,5000
+medium_demo,core,Built-in sample board medium_demo.,BFS,3,0,0.0,Node limit reached,5.207949,43092.852,5000,41858,36858,5,0,5,5000
+medium_demo,core,Built-in sample board medium_demo.,DFS (IDS),3,0,0.0,Node limit reached,6.843405,25.625,5000,140849,0,4,0,4,5000
+medium_demo,core,Built-in sample board medium_demo.,UCS,3,3,1.0,Solved,0.26532,4626.531,256,4928,4672,12,12,12,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,A*,3,3,1.0,Solved,0.000329,5.688,2,10,8,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,BFS,3,3,1.0,Solved,9.8e-05,2.469,1,2,1,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,DFS (IDS),3,3,1.0,Solved,9.8e-05,2.789,1,2,0,1,1,1,5000
+near_goal,core,Hand-crafted single-move finish state used in solver tests.,UCS,3,3,1.0,Solved,0.000311,5.625,2,10,8,1,1,1,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,A*,3,3,1.0,Solved,0.003435,42.844,9,99,90,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,BFS,3,3,1.0,Solved,0.127405,588.949,194,1155,961,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,DFS (IDS),3,3,1.0,Solved,0.301666,11.229,371,7767,0,4,4,4,5000
+two_suit_finish,core,Hand-crafted four-move finish with two active suits.,UCS,3,3,1.0,Solved,0.00429,42.742,9,99,90,4,4,4,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,A*,3,0,0.0,Node limit reached,2.882311,19465.168,5000,13374,8027,14,0,14,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,BFS,3,0,0.0,Node limit reached,2.063527,12224.195,5000,9152,4152,8,0,8,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,DFS (IDS),3,0,0.0,Node limit reached,3.040895,13.664,5000,30534,0,5,0,5,5000
+ms_deal_1,stress,Full Microsoft deal #1 from the current repository generator.,UCS,3,0,0.0,Node limit reached,3.425165,25728.516,5000,17879,12628,14,0,14,5000

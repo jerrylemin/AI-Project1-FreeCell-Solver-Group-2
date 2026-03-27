@@ -11,6 +11,11 @@ from solvers.expert_solver import ExpertSolver
 
 
 class ExpertSolverTests(unittest.TestCase):
+    def _prepare_private_caches(self, solver: ExpertSolver):
+        solver._eval_cache = {}
+        solver._legal_moves_cache = {}
+        solver._closure_cache = {}
+
     def _assert_trace_legal(self, initial: GameState, trace):
         state = initial
         for move in trace:
@@ -118,6 +123,64 @@ class ExpertSolverTests(unittest.TestCase):
         self.assertIs(initial.cascades, original_cascades)
         self.assertIs(initial.free_cells, original_free_cells)
         self.assertIs(initial.foundations, original_foundations)
+
+    def test_expert_solver_legal_move_cache_is_freecell_slot_sensitive(self):
+        ace = Card(1, 3)
+        state_a = GameState(
+            cascades=((), (), (), (), (), (), (), ()),
+            free_cells=(ace, None, None, None),
+            foundations=(0, 0, 0, 0),
+        )
+        state_b = GameState(
+            cascades=((), (), (), (), (), (), (), ()),
+            free_cells=(None, ace, None, None),
+            foundations=(0, 0, 0, 0),
+        )
+
+        self.assertEqual(state_a.canonical_key(), state_b.canonical_key())
+
+        solver = ExpertSolver(use_auto_moves=False)
+        self._prepare_private_caches(solver)
+
+        moves_a = solver._get_legal_moves(state_a)
+        moves_b = solver._get_legal_moves(state_b)
+
+        self.assertTrue(any(move.src_type == "freecell" and move.src_idx == 0 for move in moves_a))
+        self.assertFalse(any(move.src_type == "freecell" and move.src_idx == 1 for move in moves_a))
+        self.assertTrue(any(move.src_type == "freecell" and move.src_idx == 1 for move in moves_b))
+        self.assertFalse(any(move.src_type == "freecell" and move.src_idx == 0 for move in moves_b))
+
+    def test_expert_solver_safe_foundation_cache_is_freecell_slot_sensitive(self):
+        ace = Card(1, 3)
+        state_a = GameState(
+            cascades=((), (), (), (), (), (), (), ()),
+            free_cells=(ace, None, None, None),
+            foundations=(0, 0, 0, 0),
+        )
+        state_b = GameState(
+            cascades=((), (), (), (), (), (), (), ()),
+            free_cells=(None, ace, None, None),
+            foundations=(0, 0, 0, 0),
+        )
+
+        self.assertEqual(state_a.canonical_key(), state_b.canonical_key())
+
+        solver = ExpertSolver(use_auto_moves=False)
+        self._prepare_private_caches(solver)
+
+        collapsed_a, auto_moves_a = solver._collapse_safe_foundations(state_a)
+        collapsed_b, auto_moves_b = solver._collapse_safe_foundations(state_b)
+
+        self.assertEqual(len(auto_moves_a), 1)
+        self.assertEqual(len(auto_moves_b), 1)
+        self.assertEqual(auto_moves_a[0].src_type, "freecell")
+        self.assertEqual(auto_moves_b[0].src_type, "freecell")
+        self.assertEqual(auto_moves_a[0].src_idx, 0)
+        self.assertEqual(auto_moves_b[0].src_idx, 1)
+        self.assertEqual(collapsed_a.foundations[3], 1)
+        self.assertEqual(collapsed_b.foundations[3], 1)
+        self.assertEqual(collapsed_a.free_cells, (None, None, None, None))
+        self.assertEqual(collapsed_b.free_cells, (None, None, None, None))
 
 
 if __name__ == "__main__":
