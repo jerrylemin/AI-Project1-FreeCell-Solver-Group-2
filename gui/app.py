@@ -256,6 +256,12 @@ class FreeCellApp(tk.Tk):
         self._btn_dfs = btn(ctrl, "DFS", lambda: self._run_solver("DFS"), "#5a3a8a")
         self._btn_ucs = btn(ctrl, "UCS", lambda: self._run_solver("UCS"), "#5a3a8a")
         self._btn_astar = btn(ctrl, "A*", lambda: self._run_solver("ASTAR"), "#5a3a8a")
+        self._btn_expert = btn(
+            ctrl,
+            "Expert Solver",
+            lambda: self._run_solver("EXPERT"),
+            "#7a4a1f",
+        )
 
         tk.Frame(ctrl, bg="#1e2030", width=30).pack(side="left")
 
@@ -359,6 +365,7 @@ class FreeCellApp(tk.Tk):
             self._btn_dfs,
             self._btn_ucs,
             self._btn_astar,
+            self._btn_expert,
             self._max_nodes_entry,
         )
 
@@ -1448,6 +1455,7 @@ class FreeCellApp(tk.Tk):
         from solvers.astar import AStarSolver
         from solvers.bfs import BFSSolver
         from solvers.dfs import DFSSolver
+        from solvers.expert_solver import ExpertSolver
         from solvers.ucs import UCSSolver
 
         solver_classes = {
@@ -1455,6 +1463,7 @@ class FreeCellApp(tk.Tk):
             "DFS": DFSSolver,
             "UCS": UCSSolver,
             "ASTAR": AStarSolver,
+            "EXPERT": ExpertSolver,
         }
         return solver_classes[algo](use_auto_moves=False, progress_callback=progress_callback)
 
@@ -1549,7 +1558,7 @@ class FreeCellApp(tk.Tk):
         self._solving = True
         self._set_solver_controls(True)
         self._sync_playback_controls()
-        self._set_live_stats(solver.name, "Searching", 0, 0.0, 0.0, 0, 0, 0, 0)
+        self._set_live_stats(solver.name, f"{solver.name} running", 0, 0.0, 0.0, 0, 0, 0, 0)
         self._set_status(
             f"Running {solver.name} on {self._board_source_var.get()}. "
             f"Moves shows best trace length while searching."

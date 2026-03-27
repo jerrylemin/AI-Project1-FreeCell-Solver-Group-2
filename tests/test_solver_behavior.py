@@ -7,10 +7,11 @@ from game.state import GameState
 from solvers.astar import AStarSolver
 from solvers.bfs import BFSSolver
 from solvers.dfs import DFSSolver
+from solvers.expert_solver import ExpertSolver
 from solvers.ucs import UCSSolver
 
 
-SOLVER_CLASSES = (BFSSolver, DFSSolver, UCSSolver, AStarSolver)
+SOLVER_CLASSES = (BFSSolver, DFSSolver, UCSSolver, AStarSolver, ExpertSolver)
 
 
 class SolverBehaviorTests(unittest.TestCase):

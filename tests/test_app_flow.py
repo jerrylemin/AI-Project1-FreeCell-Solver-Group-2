@@ -6,6 +6,7 @@ import gui.app as app_module
 from game.deal import validate_deal
 from game.moves import apply_auto_moves, apply_move, get_valid_moves
 from solvers.base import SolverResult
+from solvers.expert_solver import ExpertSolver
 
 
 class _DummyDialog:
@@ -122,6 +123,16 @@ class FreeCellAppFlowTests(unittest.TestCase):
                 self._wait_for_solver(app)
                 self.assertIsNotNone(capture.seen_state)
                 self.assertEqual(capture.seen_state.canonical_key(), expected_key)
+            finally:
+                app.destroy()
+
+    def test_expert_solver_button_and_factory_registration(self):
+        with mock.patch.object(app_module, "ResultsDialog", _DummyDialog):
+            app = self._make_app()
+            try:
+                solver = app._create_solver("EXPERT", lambda snapshot: None)
+                self.assertIsInstance(solver, ExpertSolver)
+                self.assertEqual(app._btn_expert.cget("text"), "Expert Solver")
             finally:
                 app.destroy()
 
