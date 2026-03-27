@@ -34,6 +34,8 @@ The current codebase includes these solver implementations:
 ```text
 AI-Project1-FreeCell-Solver/
 +-- main.py                  # GUI entry point
++-- Report.pdf               # Final project report PDF
++-- report.md                # Editable report source
 +-- game/
 |   +-- card.py              # Card model and rank/suit helpers
 |   +-- state.py             # Immutable FreeCell game state
@@ -60,7 +62,11 @@ AI-Project1-FreeCell-Solver/
 |   +-- test_replay_controls.py
 |   +-- test_solver_behavior.py
 |   `-- test_solver_replay.py
++-- report_assets/           # Charts embedded in the report
++-- report_data/             # Experiment CSV/JSON outputs used by the report
++-- report_tools/            # Scripts to regenerate report data and Report.pdf
 +-- requirements.txt         # Pip requirements for this repository
++-- CLEANUP_REPORT.md        # Cleanup summary for the final repository state
 `-- README.md
 ```
 
@@ -73,6 +79,8 @@ Install dependencies with:
 ```bash
 pip install -r requirements.txt
 ```
+
+The GUI itself uses the Python standard library. The listed third-party packages are used by the report-generation tools in `report_tools/`.
 
 ## Installation
 Create and activate a virtual environment if you want an isolated setup, then install the requirements file.
@@ -138,6 +146,14 @@ python -m unittest discover -s tests
 ```
 
 The tests cover solver behavior, replay controls, GUI flow, Microsoft deal generation, layout/rules consistency, and the Expert Solver integration.
+
+## Report Regeneration
+The final report artifacts are already included in the repository. To regenerate the experiment data and PDF report:
+
+```bash
+python report_tools/run_report_experiments.py
+python report_tools/build_report.py
+```
 
 ## Notes and Limitations
 - Hard full deals can take a long time or hit the configured node limit before a solver finishes.

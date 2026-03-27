@@ -1,3 +1,3 @@
-# This project currently uses only the Python standard library.
-# No third-party packages are required for the GUI or for the
-# built-in unittest-based test suite.
+matplotlib
+numpy
+reportlab
