@@ -1,0 +1,11 @@
+deal,solved,status,search_time_s,expanded_nodes,generated_nodes,solution_length,replay_length,best_trace_length
+369,0,"Expert Solver failed, best-progress replay ready",88.122029,15000,191049,0,65,65
+40,1,Expert Solver solved,0.769881,159,1173,99,99,99
+282,1,Expert Solver solved,0.852425,156,1315,106,106,106
+51,1,Expert Solver solved,4.328416,468,7350,104,104,104
+340,0,"Expert Solver failed, best-progress replay ready",85.988237,15000,211394,0,63,72
+31,1,Expert Solver solved,7.458026,631,11313,114,114,114
+169,1,Expert Solver solved,3.257848,2971,5588,115,115,115
+482,0,"Expert Solver failed, best-progress replay ready",81.539368,15000,228558,0,74,74
+365,0,"Expert Solver failed, best-progress replay ready",118.668148,15000,190471,0,87,87
+362,1,Expert Solver solved,0.879709,155,1341,93,93,93
