@@ -36,6 +36,7 @@ BOARD_BOTTOM_MARGIN = 8
 
 CANVAS_W = 960
 CANVAS_H = 720
+BOARD_EDGE_PADDING = 10
 
 FC_Y = 20
 FD_Y = 20
@@ -68,6 +69,22 @@ MOVE_DURATION_MS = 220
 BETWEEN_MOVES_MS = 40
 MIN_SPEED = 0.5
 MAX_SPEED = 3.0
+
+UNSOLVABLE_MICROSOFT_DEALS = {
+    11982,
+    146692,
+    186216,
+    455889,
+    495505,
+    512118,
+    517776,
+    781948,
+}
+UNSOLVABLE_DEAL_NOTE = (
+    "Known unsolvable Microsoft deal. "
+    "This numbered deal is one of the documented unwinnable FreeCell deals. "
+    "Solver failure is expected."
+)
 
 
 def compute_cascade_spacing(
@@ -164,7 +181,7 @@ class FreeCellApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("FreeCell - AI Solver")
-        self.resizable(False, False)
+        self.resizable(True, True)
         self.configure(bg="#1e2030")
 
         self._deal_number: Optional[int] = None
@@ -197,6 +214,7 @@ class FreeCellApp(tk.Tk):
         self._autoplay_var = tk.BooleanVar(value=False)
         self._max_nodes_var = tk.StringVar(value="150000")
         self._board_source_var = tk.StringVar(value="Microsoft Deal #1")
+        self._deal_note_var = tk.StringVar(value="")
         self._live_solver_name = tk.StringVar(value="Idle")
         self._live_solver_status = tk.StringVar(value="Idle")
         self._live_moves_var = tk.StringVar(value="0")
@@ -214,6 +232,13 @@ class FreeCellApp(tk.Tk):
 
         self._card_items: Dict[int, Dict[str, object]] = {}
         self._visible_card_ids: Set[int] = set()
+        self._board_layout = self._compute_board_layout(CANVAS_W, CANVAS_H)
+        self._freecell_title_id: Optional[int] = None
+        self._foundation_title_id: Optional[int] = None
+        self._cascade_label_ids: List[int] = []
+        self._deal_note_label: Optional[tk.Label] = None
+        self._info_frame: Optional[tk.Frame] = None
+        self._deal_note_visible = False
         self._freecell_slots: List[Dict[str, int]] = []
         self._foundation_slots: List[Dict[str, int]] = []
         self._cascade_slots: List[Dict[str, int]] = []
@@ -222,7 +247,89 @@ class FreeCellApp(tk.Tk):
         self._win_overlay_items: List[int] = []
 
         self._build_ui()
+        self.update_idletasks()
+        self.minsize(self.winfo_reqwidth(), self.winfo_reqheight())
         self._new_game_number(1)
+
+    def _compute_board_layout(self, width: int, height: int) -> Dict[str, object]:
+        width = max(width, 8 * COL_W + BOARD_EDGE_PADDING * 2)
+        height = max(height, CAS_Y + CH + BOARD_BOTTOM_MARGIN)
+        cascade_left = max(BOARD_EDGE_PADDING, (width - 8 * COL_W) // 2)
+        freecell_left = BOARD_EDGE_PADDING
+        foundation_left = width - BOARD_EDGE_PADDING - 4 * COL_W
+        return {
+            "width": width,
+            "height": height,
+            "freecell_y": FC_Y,
+            "foundation_y": FD_Y,
+            "cascade_y": CAS_Y,
+            "freecell_x": [freecell_left + i * COL_W for i in range(4)],
+            "foundation_x": [foundation_left + i * COL_W for i in range(4)],
+            "cascade_x": [cascade_left + i * COL_W for i in range(8)],
+        }
+
+    def _set_slot_geometry(self, slot: Dict[str, int], x: int, y: int, label: str) -> None:
+        self._canvas.coords(slot["rect"], x, y, x + CW, y + CH)
+        self._canvas.coords(slot["label"], x + CW // 2, y + CH // 2)
+        self._canvas.itemconfigure(slot["label"], text=label)
+
+    def _apply_board_layout(self) -> None:
+        layout = self._board_layout
+        fc_x = layout["freecell_x"]
+        fd_x = layout["foundation_x"]
+        cas_x = layout["cascade_x"]
+        fc_y = layout["freecell_y"]
+        fd_y = layout["foundation_y"]
+        cas_y = layout["cascade_y"]
+
+        if self._freecell_title_id is not None:
+            self._canvas.coords(self._freecell_title_id, fc_x[0] + (4 * COL_W - 10) // 2, fc_y - 12)
+        if self._foundation_title_id is not None:
+            self._canvas.coords(self._foundation_title_id, fd_x[0] + (4 * COL_W - 10) // 2, fd_y - 12)
+
+        for idx, slot in enumerate(self._freecell_slots):
+            self._set_slot_geometry(slot, fc_x[idx], fc_y, f"FC {idx + 1}")
+
+        for suit, slot in enumerate(self._foundation_slots):
+            self._set_slot_geometry(slot, fd_x[suit], fd_y, SUIT_SYMBOLS[suit])
+            self._canvas.coords(
+                self._foundation_hint_labels[suit],
+                fd_x[suit] + CW // 2,
+                fd_y + CH // 2 + 28,
+            )
+
+        for idx, slot in enumerate(self._cascade_slots):
+            x = cas_x[idx]
+            self._canvas.coords(self._cascade_label_ids[idx], x + CW // 2, cas_y - 14)
+            self._set_slot_geometry(slot, x, cas_y, "Empty")
+            self._canvas.coords(self._cascade_hint_rects[idx], x, cas_y, x + CW, cas_y + CH)
+
+        if len(self._win_overlay_items) == 3:
+            self._canvas.coords(
+                self._win_overlay_items[0],
+                0,
+                0,
+                layout["width"],
+                layout["height"],
+            )
+            self._canvas.coords(self._win_overlay_items[1], layout["width"] // 2, layout["height"] // 2 - 30)
+            self._canvas.coords(self._win_overlay_items[2], layout["width"] // 2, layout["height"] // 2 + 30)
+
+        if self._deal_note_label is not None:
+            self._deal_note_label.configure(wraplength=max(360, self.winfo_width() - 40))
+
+    def _on_canvas_resize(self, event) -> None:
+        width = max(int(event.width), 1)
+        height = max(int(event.height), 1)
+        if (
+            width == self._board_layout["width"]
+            and height == self._board_layout["height"]
+        ):
+            return
+
+        self._board_layout = self._compute_board_layout(width, height)
+        self._apply_board_layout()
+        self._render()
 
     def _build_ui(self) -> None:
         ctrl = tk.Frame(self, bg="#1e2030", pady=6)
@@ -321,6 +428,7 @@ class FreeCellApp(tk.Tk):
 
         info = tk.Frame(self, bg="#151520", padx=10, pady=6)
         info.pack(fill="x", padx=8, pady=(0, 4))
+        self._info_frame = info
 
         def stat(parent, title, variable):
             box = tk.Frame(parent, bg="#151520")
@@ -341,6 +449,18 @@ class FreeCellApp(tk.Tk):
         stat(info, "Frontier", self._live_frontier_var)
         stat(info, "Search length", self._live_search_var)
 
+        self._deal_note_label = tk.Label(
+            self,
+            textvariable=self._deal_note_var,
+            font=FONT_LABEL,
+            bg="#3f2d13",
+            fg="#ffe6a8",
+            anchor="w",
+            justify="left",
+            padx=10,
+            pady=5,
+        )
+
         tk.Label(
             self,
             textvariable=self._status_var,
@@ -352,9 +472,10 @@ class FreeCellApp(tk.Tk):
         ).pack(fill="x", side="bottom")
 
         self._canvas = tk.Canvas(self, width=CANVAS_W, height=CANVAS_H, bg=BG_FELT, highlightthickness=0)
-        self._canvas.pack(padx=8, pady=(0, 4))
+        self._canvas.pack(fill="both", expand=True, padx=8, pady=(0, 4))
         self._canvas.bind("<Button-1>", self._on_click)
         self._canvas.bind("<Button-3>", self._on_right_click)
+        self._canvas.bind("<Configure>", self._on_canvas_resize, add="+")
 
         self._locked_during_solver = (
             self._btn_new_game,
@@ -373,35 +494,33 @@ class FreeCellApp(tk.Tk):
 
     def _init_canvas_scene(self) -> None:
         canvas = self._canvas
-        canvas.create_text(
-            FC_X[0] + CW // 2,
-            FC_Y - 12,
+        self._freecell_title_id = canvas.create_text(
+            0,
+            0,
             text="FREE CELLS",
             fill=CLR_LABEL,
             font=("Helvetica", 9, "bold"),
             anchor="center",
         )
-        canvas.create_text(
-            FD_X[0] + CW // 2,
-            FD_Y - 12,
+        self._foundation_title_id = canvas.create_text(
+            0,
+            0,
             text="FOUNDATIONS",
             fill=CLR_LABEL,
             font=("Helvetica", 9, "bold"),
             anchor="center",
         )
 
-        self._freecell_slots = [
-            self._create_slot_items(FC_X[idx], FC_Y, f"FC {idx + 1}") for idx in range(4)
-        ]
+        self._freecell_slots = [self._create_slot_items(0, 0, f"FC {idx + 1}") for idx in range(4)]
 
         self._foundation_slots = []
         self._foundation_hint_labels = []
         for suit in range(4):
-            self._foundation_slots.append(self._create_slot_items(FD_X[suit], FD_Y, SUIT_SYMBOLS[suit]))
+            self._foundation_slots.append(self._create_slot_items(0, 0, SUIT_SYMBOLS[suit]))
             self._foundation_hint_labels.append(
                 canvas.create_text(
-                    FD_X[suit] + CW // 2,
-                    FD_Y + CH // 2 + 28,
+                    0,
+                    0,
                     text="",
                     fill=CLR_HINT,
                     font=FONT_LABEL,
@@ -412,16 +531,18 @@ class FreeCellApp(tk.Tk):
 
         self._cascade_slots = []
         self._cascade_hint_rects = []
+        self._cascade_label_ids = []
         for idx in range(8):
-            x = CAS_X[idx]
-            canvas.create_text(x + CW // 2, CAS_Y - 14, text=f"C{idx + 1}", fill=CLR_LABEL, font=FONT_LABEL)
-            self._cascade_slots.append(self._create_slot_items(x, CAS_Y, "Empty"))
+            self._cascade_label_ids.append(
+                canvas.create_text(0, 0, text=f"C{idx + 1}", fill=CLR_LABEL, font=FONT_LABEL)
+            )
+            self._cascade_slots.append(self._create_slot_items(0, 0, "Empty"))
             self._cascade_hint_rects.append(
                 canvas.create_rectangle(
-                    x,
-                    CAS_Y,
-                    x + CW,
-                    CAS_Y + CH,
+                    0,
+                    0,
+                    CW,
+                    CH,
                     outline=CLR_HINT,
                     width=3,
                     fill="",
@@ -435,8 +556,8 @@ class FreeCellApp(tk.Tk):
         self._win_overlay_items = [
             canvas.create_rectangle(0, 0, CANVAS_W, CANVAS_H, fill="#000000", stipple="gray50", state="hidden"),
             canvas.create_text(
-                CANVAS_W // 2,
-                CANVAS_H // 2 - 30,
+                0,
+                0,
                 text="YOU WIN!",
                 fill="#ffe44d",
                 font=("Helvetica", 42, "bold"),
@@ -444,8 +565,8 @@ class FreeCellApp(tk.Tk):
                 state="hidden",
             ),
             canvas.create_text(
-                CANVAS_W // 2,
-                CANVAS_H // 2 + 30,
+                0,
+                0,
                 text="All 52 cards moved to foundations.",
                 fill="#ffffff",
                 font=("Helvetica", 16),
@@ -453,6 +574,7 @@ class FreeCellApp(tk.Tk):
                 state="hidden",
             ),
         ]
+        self._apply_board_layout()
 
     def _create_slot_items(self, x: int, y: int, label: str) -> Dict[str, int]:
         rect = self._canvas.create_rectangle(
@@ -702,25 +824,32 @@ class FreeCellApp(tk.Tk):
 
     def _layout_positions(self, state: GameState) -> Dict[int, Tuple[int, int]]:
         positions: Dict[int, Tuple[int, int]] = {}
+        layout = self._board_layout
+        fc_x = layout["freecell_x"]
+        fd_x = layout["foundation_x"]
+        cas_x = layout["cascade_x"]
+        fc_y = layout["freecell_y"]
+        fd_y = layout["foundation_y"]
+        cas_y = layout["cascade_y"]
 
         for idx, card in enumerate(state.free_cells):
             if card is not None:
-                positions[self._card_key(card)] = (FC_X[idx], FC_Y)
+                positions[self._card_key(card)] = (fc_x[idx], fc_y)
 
         for suit, top_rank in enumerate(state.foundations):
             if top_rank > 0:
-                positions[self._card_key(Card(top_rank, suit))] = (FD_X[suit], FD_Y)
+                positions[self._card_key(Card(top_rank, suit))] = (fd_x[suit], fd_y)
 
         for col_idx, col in enumerate(state.cascades):
             spacing = self._cascade_spacing(len(col))
             for row_idx, card in enumerate(col):
-                positions[self._card_key(card)] = (CAS_X[col_idx], CAS_Y + row_idx * spacing)
+                positions[self._card_key(card)] = (cas_x[col_idx], cas_y + row_idx * spacing)
 
         return positions
 
     def _cascade_spacing(self, card_count: int) -> int:
         return compute_cascade_spacing(
-            CANVAS_H - CAS_Y - BOARD_BOTTOM_MARGIN,
+            self._board_layout["height"] - self._board_layout["cascade_y"] - BOARD_BOTTOM_MARGIN,
             card_count,
             CH,
             MIN_VISIBLE_CASCADE_STRIP,
@@ -897,6 +1026,7 @@ class FreeCellApp(tk.Tk):
         self._initial_state = self._build_initial_state(self._initial_cascades)
         self._board_source_var.set(board_label)
         self._clear_solution()
+        self._update_unsolvable_deal_note()
         self._reset_board(self._initial_state)
         self._set_status(status_message)
 
@@ -924,8 +1054,33 @@ class FreeCellApp(tk.Tk):
         self._initial_state = state
         self._board_source_var.set(f"Sample Board: {name}")
         self._clear_solution()
+        self._update_unsolvable_deal_note()
         self._reset_board(state)
         self._set_status(f"Sample Board: {name} - Click a card to select it.")
+
+    def _is_known_unsolvable_microsoft_deal(self) -> bool:
+        return (
+            self._deal_number is not None
+            and self._deal_number in UNSOLVABLE_MICROSOFT_DEALS
+            and self._board_source_var.get().startswith("Microsoft Deal #")
+        )
+
+    def _update_unsolvable_deal_note(self) -> None:
+        note = UNSOLVABLE_DEAL_NOTE if self._is_known_unsolvable_microsoft_deal() else ""
+        self._deal_note_var.set(note)
+        if self._deal_note_label is None:
+            return
+
+        if note and not self._deal_note_visible:
+            self._deal_note_label.pack(fill="x", padx=8, pady=(0, 4), before=self._canvas)
+            self._deal_note_visible = True
+        elif not note and self._deal_note_visible:
+            self._deal_note_label.pack_forget()
+            self._deal_note_visible = False
+
+        self._deal_note_label.configure(wraplength=max(360, self.winfo_width() - 40))
+        self.update_idletasks()
+        self.minsize(self.winfo_reqwidth(), self.winfo_reqheight())
 
     def _new_game_number(self, number: int) -> None:
         self._load_microsoft_deal(number)
@@ -1030,6 +1185,13 @@ class FreeCellApp(tk.Tk):
 
         visible_ids: Set[int] = set()
         draw_order: List[int] = []
+        layout = self._board_layout
+        fc_x = layout["freecell_x"]
+        fd_x = layout["foundation_x"]
+        cas_x = layout["cascade_x"]
+        fc_y = layout["freecell_y"]
+        fd_y = layout["foundation_y"]
+        cas_y = layout["cascade_y"]
 
         for idx, card in enumerate(display_state.free_cells):
             hint = ("freecell", idx) in dst_highlights
@@ -1044,7 +1206,7 @@ class FreeCellApp(tk.Tk):
                 highlight = CLR_SEL
             elif hint:
                 highlight = CLR_HINT
-            self._place_card_item(card_id, FC_X[idx], FC_Y, highlight=highlight)
+            self._place_card_item(card_id, fc_x[idx], fc_y, highlight=highlight)
             visible_ids.add(card_id)
             draw_order.append(card_id)
 
@@ -1057,7 +1219,7 @@ class FreeCellApp(tk.Tk):
                 card = Card(top_rank, suit)
                 card_id = self._card_key(card)
                 if card_id not in hidden:
-                    self._place_card_item(card_id, FD_X[suit], FD_Y, highlight=CLR_HINT if hint else "")
+                    self._place_card_item(card_id, fd_x[suit], fd_y, highlight=CLR_HINT if hint else "")
                     visible_ids.add(card_id)
                     draw_order.append(card_id)
 
@@ -1067,7 +1229,7 @@ class FreeCellApp(tk.Tk):
                 self._canvas.itemconfigure(hint_label, state="hidden")
 
         for col_idx, col in enumerate(display_state.cascades):
-            x = CAS_X[col_idx]
+            x = cas_x[col_idx]
             hint_col = ("cascade", col_idx) in dst_highlights
             visible_cards = [card for card in col if self._card_key(card) not in hidden]
             self._configure_slot(self._cascade_slots[col_idx], "Empty", hint_col and not visible_cards)
@@ -1083,7 +1245,7 @@ class FreeCellApp(tk.Tk):
             for row_idx, card in enumerate(visible_cards):
                 original_row_idx = len(col) - len(visible_cards) + row_idx
                 spacing = self._cascade_spacing(len(col))
-                y = CAS_Y + row_idx * spacing
+                y = cas_y + row_idx * spacing
                 highlight = CLR_SEL if original_row_idx >= selected_start else ""
                 card_id = self._card_key(card)
                 self._place_card_item(card_id, x, y, highlight=highlight)
@@ -1091,7 +1253,7 @@ class FreeCellApp(tk.Tk):
                 draw_order.append(card_id)
 
             if hint_col:
-                y_top = CAS_Y + (len(visible_cards) - 1) * self._cascade_spacing(len(col))
+                y_top = cas_y + (len(visible_cards) - 1) * self._cascade_spacing(len(col))
                 hint_rect = self._cascade_hint_rects[col_idx]
                 self._canvas.coords(hint_rect, x, y_top, x + CW, y_top + CH)
                 self._canvas.itemconfigure(hint_rect, state="normal")
@@ -1133,28 +1295,35 @@ class FreeCellApp(tk.Tk):
     def _hit_test(self, x: int, y: int) -> Optional[Tuple]:
         if self._state is None:
             return None
+        layout = self._board_layout
+        fc_x = layout["freecell_x"]
+        fd_x = layout["foundation_x"]
+        cas_x = layout["cascade_x"]
+        fc_y = layout["freecell_y"]
+        fd_y = layout["foundation_y"]
+        cas_y = layout["cascade_y"]
 
         for i in range(4):
-            if FC_X[i] <= x <= FC_X[i] + CW and FC_Y <= y <= FC_Y + CH:
+            if fc_x[i] <= x <= fc_x[i] + CW and fc_y <= y <= fc_y + CH:
                 return ("freecell", i)
 
         for i in range(4):
-            if FD_X[i] <= x <= FD_X[i] + CW and FD_Y <= y <= FD_Y + CH:
+            if fd_x[i] <= x <= fd_x[i] + CW and fd_y <= y <= fd_y + CH:
                 return ("foundation", i)
 
         for ci in range(8):
-            cx = CAS_X[ci]
+            cx = cas_x[ci]
             if not (cx <= x <= cx + CW):
                 continue
             col = self._state.cascades[ci]
             spacing = self._cascade_spacing(len(col))
             if not col:
-                if CAS_Y <= y <= CAS_Y + CH:
+                if cas_y <= y <= cas_y + CH:
                     return ("cascade_empty", ci)
                 continue
 
             for ri in range(len(col) - 1, -1, -1):
-                y_card = CAS_Y + ri * spacing
+                y_card = cas_y + ri * spacing
                 y_bottom = y_card + (spacing if ri < len(col) - 1 else CH)
                 if y_card <= y <= y_bottom:
                     return ("cascade_card", ci, ri)
@@ -1559,9 +1728,13 @@ class FreeCellApp(tk.Tk):
         self._set_solver_controls(True)
         self._sync_playback_controls()
         self._set_live_stats(solver.name, f"{solver.name} running", 0, 0.0, 0.0, 0, 0, 0, 0)
+        known_unsolvable_note = ""
+        if self._is_known_unsolvable_microsoft_deal():
+            known_unsolvable_note = " Running on a known unsolvable Microsoft deal."
         self._set_status(
             f"Running {solver.name} on {self._board_source_var.get()}. "
             f"Moves shows best trace length while searching."
+            f"{known_unsolvable_note}"
         )
         self._schedule_solver_progress_poll()
 

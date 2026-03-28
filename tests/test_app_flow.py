@@ -38,9 +38,10 @@ class _CaptureSolver:
 
 
 class FreeCellAppFlowTests(unittest.TestCase):
-    def _make_app(self):
+    def _make_app(self, *, withdraw: bool = True):
         app = app_module.FreeCellApp()
-        app.withdraw()
+        if withdraw:
+            app.withdraw()
         return app
 
     def _wait_for_solver(self, app, timeout_s: float = 2.0):
@@ -133,6 +134,64 @@ class FreeCellAppFlowTests(unittest.TestCase):
                 solver = app._create_solver("EXPERT", lambda snapshot: None)
                 self.assertIsInstance(solver, ExpertSolver)
                 self.assertEqual(app._btn_expert.cget("text"), "Expert Solver")
+            finally:
+                app.destroy()
+
+    def test_window_is_resizable_and_canvas_reflows_on_resize(self):
+        with mock.patch.object(app_module, "ResultsDialog", _DummyDialog):
+            app = self._make_app(withdraw=False)
+            try:
+                app.update_idletasks()
+                initial_width = app._canvas.winfo_width()
+                initial_height = app._canvas.winfo_height()
+                initial_slot = tuple(app._canvas.coords(app._cascade_slots[0]["rect"]))
+                initial_spacing = app._cascade_spacing(20)
+                initial_geometry = (app.winfo_width(), app.winfo_height())
+
+                self.assertEqual(tuple(bool(v) for v in app.resizable()), (True, True))
+
+                app.geometry(f"{initial_geometry[0] + 220}x{initial_geometry[1] + 180}")
+                app.update()
+
+                grown_width = app._canvas.winfo_width()
+                grown_height = app._canvas.winfo_height()
+                grown_slot = tuple(app._canvas.coords(app._cascade_slots[0]["rect"]))
+                grown_spacing = app._cascade_spacing(20)
+
+                self.assertGreater(grown_width, initial_width)
+                self.assertGreater(grown_height, initial_height)
+                self.assertNotEqual(grown_slot, initial_slot)
+                self.assertGreaterEqual(grown_spacing, initial_spacing)
+
+                app.geometry(f"{initial_geometry[0]}x{initial_geometry[1]}")
+                app.update()
+
+                shrunk_slot = tuple(app._canvas.coords(app._cascade_slots[0]["rect"]))
+                shrunk_spacing = app._cascade_spacing(20)
+                self.assertNotEqual(shrunk_slot, grown_slot)
+                self.assertLessEqual(shrunk_spacing, grown_spacing)
+            finally:
+                app.destroy()
+
+    def test_unsolvable_microsoft_deal_note_appears_and_clears_by_board_source(self):
+        with mock.patch.object(app_module, "ResultsDialog", _DummyDialog):
+            app = self._make_app()
+            try:
+                app._load_microsoft_deal(11982)
+                self.assertIn("Known unsolvable Microsoft deal.", app._deal_note_var.get())
+                self.assertEqual(app._btn_bfs.cget("state"), "normal")
+
+                app._load_microsoft_deal(781948)
+                self.assertIn("Solver failure is expected.", app._deal_note_var.get())
+
+                app._load_microsoft_deal(164)
+                self.assertEqual(app._deal_note_var.get(), "")
+
+                app._load_random_board(seed=7)
+                self.assertEqual(app._deal_note_var.get(), "")
+
+                app._load_sample_board("easy_demo")
+                self.assertEqual(app._deal_note_var.get(), "")
             finally:
                 app.destroy()
 

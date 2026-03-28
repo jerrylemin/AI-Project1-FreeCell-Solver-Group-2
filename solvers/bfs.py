@@ -3,15 +3,21 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Dict, Optional, Tuple
+from typing import Deque, Tuple
 
-from game.moves import Move, apply_auto_moves, apply_move, get_valid_moves
+from game.moves import apply_auto_moves, apply_move
 from game.state import GameState
 from .base import BaseSolver, SolverResult
+from .search_utils import (
+    exact_state_key,
+    ordered_legal_moves,
+    reconstruct_path,
+    should_prune_immediate_reverse,
+)
 
 
 class BFSSolver(BaseSolver):
-    """FreeCell solver using Breadth-First Search."""
+    """FreeCell solver using FIFO breadth-first graph search."""
 
     @property
     def name(self) -> str:
@@ -31,14 +37,14 @@ class BFSSolver(BaseSolver):
                 replay_message="Replaying final solution path.",
             )
 
-        parent: Dict[tuple, Tuple[Optional[GameState], Optional[Move]]] = {
-            initial.canonical_key(): (None, None)
-        }
-        frontier: deque[Tuple[GameState, int]] = deque([(initial, 0)])
+        move_cache = {}
+        initial_key = exact_state_key(initial)
+        parent_links = {initial_key: (None, None)}
+        frontier: Deque[Tuple[GameState, tuple, int]] = deque([(initial, initial_key, 0)])
         expanded = 0
         generated = 1
         deepest_depth = 0
-        best_state = initial
+        best_state_key = initial_key
         best_score = (*self._progress_score(initial), 0)
         best_trace_length = 0
 
@@ -55,92 +61,82 @@ class BFSSolver(BaseSolver):
 
         while frontier:
             if self.stop_requested():
-                best_trace = self._reconstruct(parent, best_state)
-                return SolverResult(
-                    self.name,
-                    solved=False,
-                    replay_trace=best_trace,
-                    best_trace_length=best_trace_length,
-                    replay_label="Replay Failed Attempt",
-                    replay_message="Stopped by user, showing best-progress trace.",
-                    status=self._stop_status(),
-                    expanded_nodes=expanded,
-                    generated_nodes=generated,
-                    frontier_size=len(frontier),
-                    search_length=deepest_depth,
-                    message=self._stop_msg(),
+                return self._failed_result(
+                    parent_links,
+                    best_state_key,
+                    best_trace_length,
+                    expanded,
+                    generated,
+                    len(frontier),
+                    deepest_depth,
+                    self._stop_status(),
+                    self._stop_msg(),
+                    "Stopped by user, showing best-progress trace.",
                 )
 
             if expanded >= self.MAX_NODES:
-                best_trace = self._reconstruct(parent, best_state)
-                return SolverResult(
-                    self.name,
-                    solved=False,
-                    replay_trace=best_trace,
-                    best_trace_length=best_trace_length,
-                    replay_label="Replay Failed Attempt",
-                    replay_message="Node limit reached, showing best-progress trace.",
-                    status=self._nodelimit_status(),
-                    expanded_nodes=expanded,
-                    generated_nodes=generated,
-                    frontier_size=len(frontier),
-                    search_length=deepest_depth,
-                    message=self._nodelimit_msg(),
+                return self._failed_result(
+                    parent_links,
+                    best_state_key,
+                    best_trace_length,
+                    expanded,
+                    generated,
+                    len(frontier),
+                    deepest_depth,
+                    self._nodelimit_status(),
+                    self._nodelimit_msg(),
+                    "Node limit reached, showing best-progress trace.",
                 )
 
-            state, depth = frontier.popleft()
+            state, state_key, depth = frontier.popleft()
             expanded += 1
             deepest_depth = max(deepest_depth, depth)
             self._maybe_yield()
 
-            for move in get_valid_moves(state):
+            previous_move = parent_links[state_key][1]
+            for move in ordered_legal_moves(state, move_cache):
                 if self.stop_requested():
-                    best_trace = self._reconstruct(parent, best_state)
-                    return SolverResult(
-                        self.name,
-                        solved=False,
-                        replay_trace=best_trace,
-                        best_trace_length=best_trace_length,
-                        replay_label="Replay Failed Attempt",
-                        replay_message="Stopped by user, showing best-progress trace.",
-                        status=self._stop_status(),
-                        expanded_nodes=expanded,
-                        generated_nodes=generated,
-                        frontier_size=len(frontier),
-                        search_length=deepest_depth,
-                        message=self._stop_msg(),
+                    return self._failed_result(
+                        parent_links,
+                        best_state_key,
+                        best_trace_length,
+                        expanded,
+                        generated,
+                        len(frontier),
+                        deepest_depth,
+                        self._stop_status(),
+                        self._stop_msg(),
+                        "Stopped by user, showing best-progress trace.",
                     )
+
+                if should_prune_immediate_reverse(
+                    move,
+                    previous_move,
+                    use_auto_moves=self.use_auto_moves,
+                ):
+                    continue
 
                 child = apply_move(state, move)
                 if self.use_auto_moves:
                     child = apply_auto_moves(child)
 
-                key = child.canonical_key()
-                if key in parent:
+                child_key = exact_state_key(child)
+                if child_key in parent_links:
                     continue
 
-                parent[key] = (state, move)
                 child_depth = depth + 1
                 deepest_depth = max(deepest_depth, child_depth)
+                parent_links[child_key] = (state_key, move)
                 generated += 1
-                frontier.append((child, child_depth))
+
                 child_score = (*self._progress_score(child), child_depth)
                 if child_score > best_score:
                     best_score = child_score
-                    best_state = child
+                    best_state_key = child_key
                     best_trace_length = max(best_trace_length, child_depth)
-                self._report_progress(
-                    moves=best_trace_length,
-                    expanded_nodes=expanded,
-                    generated_nodes=generated,
-                    frontier_size=len(frontier),
-                    search_length=deepest_depth,
-                    current_depth=child_depth,
-                    status="Searching",
-                )
 
                 if child.is_goal():
-                    solution = self._reconstruct(parent, child)
+                    solution = reconstruct_path(parent_links, child_key)
                     return SolverResult(
                         self.name,
                         solved=True,
@@ -157,18 +153,55 @@ class BFSSolver(BaseSolver):
                         current_depth=child_depth,
                     )
 
-        best_trace = self._reconstruct(parent, best_state)
+                frontier.append((child, child_key, child_depth))
+                self._report_progress(
+                    moves=best_trace_length,
+                    expanded_nodes=expanded,
+                    generated_nodes=generated,
+                    frontier_size=len(frontier),
+                    search_length=deepest_depth,
+                    current_depth=child_depth,
+                    status="Searching",
+                )
+
+        return self._failed_result(
+            parent_links,
+            best_state_key,
+            best_trace_length,
+            expanded,
+            generated,
+            0,
+            deepest_depth,
+            self._failure_status(),
+            "No solution exists.",
+            "No solution found, showing best-progress trace.",
+        )
+
+    def _failed_result(
+        self,
+        parent_links,
+        best_state_key,
+        best_trace_length,
+        expanded,
+        generated,
+        frontier_size,
+        deepest_depth,
+        status,
+        message,
+        replay_message,
+    ) -> SolverResult:
+        best_trace = reconstruct_path(parent_links, best_state_key)
         return SolverResult(
             self.name,
             solved=False,
             replay_trace=best_trace,
             best_trace_length=best_trace_length,
             replay_label="Replay Failed Attempt",
-            replay_message="No solution found, showing best-progress trace.",
-            status=self._failure_status(),
+            replay_message=replay_message,
+            status=status,
             expanded_nodes=expanded,
             generated_nodes=generated,
-            frontier_size=0,
+            frontier_size=frontier_size,
             search_length=deepest_depth,
-            message="No solution exists.",
+            message=message,
         )

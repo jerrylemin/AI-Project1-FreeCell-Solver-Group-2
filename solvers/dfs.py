@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Dict, List, Set
 
-from game.moves import Move, apply_auto_moves, apply_move, get_valid_moves
+from game.moves import Move, apply_auto_moves, apply_move
 from game.state import GameState
 from .base import BaseSolver, SolverResult
+from .search_utils import (
+    exact_state_key,
+    ordered_legal_moves,
+    should_prune_immediate_reverse,
+)
 
 
 _NOT_FOUND = "NOT_FOUND"
@@ -16,7 +21,7 @@ _STOPPED = "STOPPED"
 
 
 class DFSSolver(BaseSolver):
-    """FreeCell solver using iterative-deepening DFS."""
+    """FreeCell solver using iterative-deepening depth-first search."""
 
     MAX_DEPTH = 200
 
@@ -38,13 +43,16 @@ class DFSSolver(BaseSolver):
                 replay_message="Replaying final solution path.",
             )
 
+        self._move_cache = {}
         self._total_expanded = 0
         self._total_generated = 1
         self._deepest_depth = 0
         self._aborted = None
         self._best_trace: List[Move] = []
         self._best_trace_length = 0
-        self._best_score = (0, initial.cards_on_foundation, -self._hidden_blockers(initial))
+        self._best_score = (*self._progress_score(initial), 0)
+        self._iteration_best_depth: Dict[tuple, int] = {}
+
         self._report_progress(
             moves=0,
             expanded_nodes=0,
@@ -56,13 +64,21 @@ class DFSSolver(BaseSolver):
             force=True,
         )
 
+        initial_key = exact_state_key(initial)
         depth_limit = 0
         for depth_limit in range(1, self.MAX_DEPTH + 1):
-            path_states: List[GameState] = [initial]
+            self._iteration_best_depth = {initial_key: 0}
             path_moves: List[Move] = []
-            path_keys: Set[tuple] = {initial.canonical_key()}
+            path_keys: Set[tuple] = {initial_key}
 
-            outcome = self._dls(initial, depth_limit, path_states, path_moves, path_keys)
+            outcome = self._dls(
+                initial,
+                initial_key,
+                limit=depth_limit,
+                depth=0,
+                path_moves=path_moves,
+                path_keys=path_keys,
+            )
 
             if isinstance(outcome, list):
                 return SolverResult(
@@ -111,8 +127,10 @@ class DFSSolver(BaseSolver):
     def _dls(
         self,
         state: GameState,
+        state_key: tuple,
+        *,
         limit: int,
-        path_states: List[GameState],
+        depth: int,
         path_moves: List[Move],
         path_keys: Set[tuple],
     ):
@@ -131,49 +149,69 @@ class DFSSolver(BaseSolver):
             return _CUTOFF
 
         self._total_expanded += 1
-        self._deepest_depth = max(self._deepest_depth, len(path_moves))
+        self._deepest_depth = max(self._deepest_depth, depth)
         self._maybe_yield()
         found_cutoff = False
+        previous_move = path_moves[-1] if path_moves else None
 
-        for move in get_valid_moves(state):
+        for move in ordered_legal_moves(state, self._move_cache):
             if self.stop_requested():
                 self._aborted = _STOPPED
                 return _STOPPED
+
+            if should_prune_immediate_reverse(
+                move,
+                previous_move,
+                use_auto_moves=self.use_auto_moves,
+            ):
+                continue
 
             child = apply_move(state, move)
             if self.use_auto_moves:
                 child = apply_auto_moves(child)
 
-            key = child.canonical_key()
-            if key in path_keys:
+            child_key = exact_state_key(child)
+            if child_key in path_keys:
                 continue
 
-            path_states.append(child)
+            child_depth = depth + 1
+            best_seen_depth = self._iteration_best_depth.get(child_key)
+            if best_seen_depth is not None and child_depth >= best_seen_depth:
+                continue
+
+            self._iteration_best_depth[child_key] = child_depth
             path_moves.append(move)
-            path_keys.add(key)
-            depth = len(path_moves)
+            path_keys.add(child_key)
             self._total_generated += 1
-            self._deepest_depth = max(self._deepest_depth, depth)
-            child_score = (depth, child.cards_on_foundation, -self._hidden_blockers(child))
+            self._deepest_depth = max(self._deepest_depth, child_depth)
+
+            child_score = (*self._progress_score(child), child_depth)
             if child_score > self._best_score:
                 self._best_score = child_score
                 self._best_trace = list(path_moves)
-                self._best_trace_length = max(self._best_trace_length, depth)
+                self._best_trace_length = max(self._best_trace_length, child_depth)
+
             self._report_progress(
                 moves=self._best_trace_length,
                 expanded_nodes=self._total_expanded,
                 generated_nodes=self._total_generated,
-                frontier_size=len(path_states),
+                frontier_size=len(path_moves) + 1,
                 search_length=self._deepest_depth,
-                current_depth=depth,
+                current_depth=child_depth,
                 status="Searching",
             )
 
-            result = self._dls(child, limit - 1, path_states, path_moves, path_keys)
+            result = self._dls(
+                child,
+                child_key,
+                limit=limit - 1,
+                depth=child_depth,
+                path_moves=path_moves,
+                path_keys=path_keys,
+            )
 
-            path_states.pop()
             path_moves.pop()
-            path_keys.discard(key)
+            path_keys.discard(child_key)
 
             if isinstance(result, list):
                 return result
