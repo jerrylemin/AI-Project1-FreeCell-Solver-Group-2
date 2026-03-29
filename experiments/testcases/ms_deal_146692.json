@@ -1,0 +1,96 @@
+{
+  "name": "ms_deal_146692",
+  "category": "stress",
+  "expected_difficulty": "known_unsolvable",
+  "source_type": "microsoft_deal",
+  "description": "Known unsolvable Microsoft numbered deal 146692.",
+  "deal_number": 146692,
+  "sample_name": null,
+  "use_in_main_comparison": false,
+  "use_in_stress_comparison": true,
+  "board_source": "Microsoft Deal #146692",
+  "state": {
+    "cascades": [
+      [
+        "JC",
+        "8C",
+        "9S",
+        "TC",
+        "2C",
+        "5C",
+        "5D"
+      ],
+      [
+        "KC",
+        "5H",
+        "4D",
+        "6C",
+        "4C",
+        "4H",
+        "KH"
+      ],
+      [
+        "9C",
+        "6D",
+        "AC",
+        "QH",
+        "AD",
+        "TS",
+        "JH"
+      ],
+      [
+        "5S",
+        "QC",
+        "QS",
+        "7H",
+        "TD",
+        "8H",
+        "3C"
+      ],
+      [
+        "2D",
+        "8S",
+        "6S",
+        "7S",
+        "8D",
+        "KD"
+      ],
+      [
+        "6H",
+        "JS",
+        "2H",
+        "9H",
+        "9D",
+        "JD"
+      ],
+      [
+        "7C",
+        "TH",
+        "3D",
+        "AS",
+        "7D",
+        "2S"
+      ],
+      [
+        "4S",
+        "3S",
+        "3H",
+        "AH",
+        "KS",
+        "QD"
+      ]
+    ],
+    "free_cells": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "foundations": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+suite,testcase,board_source,source_type,deal_number,sample_name,category,expected_difficulty,algorithm,solved,status,search_time_s,peak_memory_kb,expanded_nodes,generated_nodes,frontier_size,search_length,solution_length,best_trace_length,replay_length,node_limit,use_auto_moves,stop_condition
+stress,ms_deal_1941,Microsoft Deal #1941,microsoft_deal,1941,,stress,hard_full_deal,BFS,0,Node limit reached,62.794667,390955.535,150000,220299,70299,9,0,9,9,150000,0,node_limit
+stress,ms_deal_1941,Microsoft Deal #1941,microsoft_deal,1941,,stress,hard_full_deal,DFS (IDS),0,Node limit reached,62.336442,206674.801,150000,344004,0,8,0,8,8,150000,0,node_limit
+stress,ms_deal_1941,Microsoft Deal #1941,microsoft_deal,1941,,stress,hard_full_deal,UCS,0,Node limit reached,84.190407,589731.860,150000,327546,172894,17,0,17,17,150000,0,node_limit
+stress,ms_deal_1941,Microsoft Deal #1941,microsoft_deal,1941,,stress,hard_full_deal,A*,0,Node limit reached,71.182092,482345.337,150000,258566,108093,17,0,17,17,150000,0,node_limit
+stress,ms_deal_10692,Microsoft Deal #10692,microsoft_deal,10692,,stress,hard_full_deal,BFS,0,Node limit reached,60.941574,384997.906,150000,218029,68029,10,0,10,10,150000,0,node_limit
+stress,ms_deal_10692,Microsoft Deal #10692,microsoft_deal,10692,,stress,hard_full_deal,DFS (IDS),0,Node limit reached,56.419634,193574.375,150000,307504,0,8,0,8,8,150000,0,node_limit
+stress,ms_deal_10692,Microsoft Deal #10692,microsoft_deal,10692,,stress,hard_full_deal,UCS,0,Node limit reached,78.797998,505462.270,150000,276465,121650,16,0,13,13,150000,0,node_limit
+stress,ms_deal_10692,Microsoft Deal #10692,microsoft_deal,10692,,stress,hard_full_deal,A*,0,Node limit reached,67.301556,423300.941,150000,226155,75766,13,0,13,13,150000,0,node_limit
+stress,ms_deal_11982,Microsoft Deal #11982,microsoft_deal,11982,,stress,known_unsolvable,BFS,0,Node limit reached,63.038664,374145.681,150000,206173,56173,9,0,9,9,150000,0,node_limit
+stress,ms_deal_11982,Microsoft Deal #11982,microsoft_deal,11982,,stress,known_unsolvable,DFS (IDS),0,Node limit reached,68.805513,248294.543,150000,361631,0,8,0,7,7,150000,0,node_limit
+stress,ms_deal_11982,Microsoft Deal #11982,microsoft_deal,11982,,stress,known_unsolvable,UCS,0,Node limit reached,79.196250,478219.899,150000,254277,100454,12,0,10,10,150000,0,node_limit
+stress,ms_deal_11982,Microsoft Deal #11982,microsoft_deal,11982,,stress,known_unsolvable,A*,0,Node limit reached,70.777068,436785.348,150000,226773,76707,11,0,11,10,150000,0,node_limit
+stress,ms_deal_146692,Microsoft Deal #146692,microsoft_deal,146692,,stress,known_unsolvable,BFS,0,Node limit reached,56.582310,321980.727,150000,186598,36598,14,0,14,14,150000,0,node_limit
+stress,ms_deal_146692,Microsoft Deal #146692,microsoft_deal,146692,,stress,known_unsolvable,DFS (IDS),0,Node limit reached,48.503011,124567.086,150000,248407,0,9,0,9,9,150000,0,node_limit
+stress,ms_deal_146692,Microsoft Deal #146692,microsoft_deal,146692,,stress,known_unsolvable,UCS,0,Node limit reached,67.614833,387650.906,150000,215715,60414,19,0,16,16,150000,0,node_limit
+stress,ms_deal_146692,Microsoft Deal #146692,microsoft_deal,146692,,stress,known_unsolvable,A*,0,Node limit reached,58.128745,353093.055,150000,193086,41797,20,0,20,20,150000,0,node_limit
+stress,ms_deal_781948,Microsoft Deal #781948,microsoft_deal,781948,,stress,known_unsolvable,BFS,0,Node limit reached,54.368670,273914.805,150000,156832,6832,28,0,21,21,150000,0,node_limit
+stress,ms_deal_781948,Microsoft Deal #781948,microsoft_deal,781948,,stress,known_unsolvable,DFS (IDS),0,Node limit reached,42.447805,111087.520,150000,232976,0,9,0,9,9,150000,0,node_limit
+stress,ms_deal_781948,Microsoft Deal #781948,microsoft_deal,781948,,stress,known_unsolvable,UCS,0,Node limit reached,57.393590,291437.524,150000,162201,8890,30,0,15,15,150000,0,node_limit
+stress,ms_deal_781948,Microsoft Deal #781948,microsoft_deal,781948,,stress,known_unsolvable,A*,0,Node limit reached,53.484644,287995.251,150000,158569,8422,29,0,23,23,150000,0,node_limit

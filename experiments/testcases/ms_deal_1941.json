@@ -1,0 +1,96 @@
+{
+  "name": "ms_deal_1941",
+  "category": "stress",
+  "expected_difficulty": "hard_full_deal",
+  "source_type": "microsoft_deal",
+  "description": "Stress testcase based on Microsoft numbered deal 1941.",
+  "deal_number": 1941,
+  "sample_name": null,
+  "use_in_main_comparison": false,
+  "use_in_stress_comparison": true,
+  "board_source": "Microsoft Deal #1941",
+  "state": {
+    "cascades": [
+      [
+        "9D",
+        "6S",
+        "4D",
+        "AH",
+        "5C",
+        "4H",
+        "KH"
+      ],
+      [
+        "JH",
+        "JC",
+        "JS",
+        "7S",
+        "6D",
+        "AC",
+        "4S"
+      ],
+      [
+        "AD",
+        "8D",
+        "AS",
+        "2H",
+        "KC",
+        "KD",
+        "7H"
+      ],
+      [
+        "KS",
+        "TS",
+        "9S",
+        "8H",
+        "JD",
+        "QD",
+        "3H"
+      ],
+      [
+        "TC",
+        "4C",
+        "2S",
+        "5D",
+        "3S",
+        "6H"
+      ],
+      [
+        "3C",
+        "QC",
+        "5S",
+        "QS",
+        "QH",
+        "7D"
+      ],
+      [
+        "9H",
+        "5H",
+        "7C",
+        "6C",
+        "3D",
+        "TD"
+      ],
+      [
+        "2C",
+        "8C",
+        "8S",
+        "TH",
+        "2D",
+        "9C"
+      ]
+    ],
+    "free_cells": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "foundations": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

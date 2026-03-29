@@ -1,0 +1,52 @@
+{
+  "name": "medium_demo",
+  "category": "main",
+  "expected_difficulty": "medium",
+  "source_type": "sample_board",
+  "description": "Built-in sample board medium_demo from the repository.",
+  "deal_number": null,
+  "sample_name": "medium_demo",
+  "use_in_main_comparison": true,
+  "use_in_stress_comparison": false,
+  "board_source": "Sample Board: medium_demo",
+  "state": {
+    "cascades": [
+      [
+        "KC",
+        "QC",
+        "JC"
+      ],
+      [
+        "KD",
+        "QD",
+        "JD"
+      ],
+      [
+        "KH",
+        "QH",
+        "JH"
+      ],
+      [
+        "KS",
+        "QS",
+        "JS"
+      ],
+      [],
+      [],
+      [],
+      []
+    ],
+    "free_cells": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "foundations": [
+      10,
+      10,
+      10,
+      10
+    ]
+  }
+}

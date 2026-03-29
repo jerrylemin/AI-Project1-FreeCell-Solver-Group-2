@@ -1,0 +1,96 @@
+{
+  "name": "ms_deal_617",
+  "category": "main",
+  "expected_difficulty": "full_deal",
+  "source_type": "microsoft_deal",
+  "description": "Exact Microsoft numbered deal 617.",
+  "deal_number": 617,
+  "sample_name": null,
+  "use_in_main_comparison": true,
+  "use_in_stress_comparison": false,
+  "board_source": "Microsoft Deal #617",
+  "state": {
+    "cascades": [
+      [
+        "7D",
+        "TD",
+        "TH",
+        "KD",
+        "4C",
+        "4S",
+        "JD"
+      ],
+      [
+        "AD",
+        "7S",
+        "QC",
+        "5H",
+        "QS",
+        "TS",
+        "KS"
+      ],
+      [
+        "5C",
+        "QD",
+        "3H",
+        "9S",
+        "9C",
+        "2H",
+        "KC"
+      ],
+      [
+        "3S",
+        "AC",
+        "9D",
+        "3C",
+        "9H",
+        "5D",
+        "4H"
+      ],
+      [
+        "5S",
+        "6D",
+        "6S",
+        "8S",
+        "7C",
+        "JC"
+      ],
+      [
+        "8C",
+        "8H",
+        "8D",
+        "7H",
+        "6H",
+        "6C"
+      ],
+      [
+        "2D",
+        "AS",
+        "3D",
+        "4D",
+        "2C",
+        "JH"
+      ],
+      [
+        "AH",
+        "KH",
+        "TC",
+        "JS",
+        "2S",
+        "QH"
+      ]
+    ],
+    "free_cells": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "foundations": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

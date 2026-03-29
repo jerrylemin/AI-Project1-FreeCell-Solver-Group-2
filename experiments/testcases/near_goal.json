@@ -1,0 +1,36 @@
+{
+  "name": "near_goal",
+  "category": "main",
+  "expected_difficulty": "trivial",
+  "source_type": "custom_state",
+  "description": "Single-move finish state used to validate basic solver correctness.",
+  "deal_number": null,
+  "sample_name": null,
+  "use_in_main_comparison": true,
+  "use_in_stress_comparison": false,
+  "board_source": "Custom fixed state",
+  "state": {
+    "cascades": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "free_cells": [
+      "KC",
+      null,
+      null,
+      null
+    ],
+    "foundations": [
+      12,
+      13,
+      13,
+      13
+    ]
+  }
+}
