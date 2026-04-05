@@ -34,8 +34,3 @@ Chay chuong trinh:
 python main.py
 ```
 
-## Chay test
-
-```bash
-python -m unittest discover -s tests
-```
