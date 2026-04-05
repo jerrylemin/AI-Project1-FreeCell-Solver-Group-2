@@ -1,3 +1,7 @@
+# Pip-installable dependency
 matplotlib==3.10.8
-numpy==1.26.4
-reportlab==4.4.10
+
+# Required runtime module
+# tkinter
+# Note: tkinter is part of the Python standard library / Python installer,
+# so it is required by this project but is not installed via pip.
